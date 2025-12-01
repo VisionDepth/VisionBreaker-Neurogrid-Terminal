@@ -215,7 +215,7 @@ You can run VisionBreaker: Neurogrid Terminal in a Conda environment (recommende
    - Either clone the repo:
 
      ```bash
-     git clone https://github.com/your-name/VisionBreaker-Neurogrid-Terminal.git
+     git clone https://github.com/your-name/VisionBreaker-Neurogrid-Terminal-main.git
      ```
 
    - Or download the ZIP from GitHub and extract it somewhere on your drive.
@@ -223,7 +223,7 @@ You can run VisionBreaker: Neurogrid Terminal in a Conda environment (recommende
 4. **Change into the project folder**
 
    ```bash
-   cd path/to/VisionBreaker-Neurogrid-Terminal
+   cd path/to/VisionBreaker-Neurogrid-Terminal-main
    ```
 
 5. **Install dependencies**
@@ -247,7 +247,7 @@ You can run VisionBreaker: Neurogrid Terminal in a Conda environment (recommende
 3. Open a terminal in the project folder:
 
    ```bash
-   cd path/to/VisionBreaker-Neurogrid-Terminal
+   cd path/to/VisionBreaker-Neurogrid-Terminal-main
    ```
 
 4. Install the dependencies:
