@@ -192,7 +192,73 @@ This sequence is entirely text driven and fits the in universe lore for VisionBr
 - Python 3.9 or newer
 - Pygame
 
-Install Pygame with:
+## Installation
 
-```bash
-pip install pygame
+You can run VisionBreaker: Neurogrid Terminal in a Conda environment (recommended) or with plain Python and `pip`.
+
+### Option 1: Using Conda (recommended)
+
+1. **Create a new environment**
+
+   ```bash
+   conda create -n VisionBreaker python=3.11
+   ```
+
+2. **Activate the environment**
+
+   ```bash
+   conda activate VisionBreaker
+   ```
+
+3. **Download the game**
+
+   - Either clone the repo:
+
+     ```bash
+     git clone https://github.com/your-name/VisionBreaker-Neurogrid-Terminal.git
+     ```
+
+   - Or download the ZIP from GitHub and extract it somewhere on your drive.
+
+4. **Change into the project folder**
+
+   ```bash
+   cd path/to/VisionBreaker-Neurogrid-Terminal
+   ```
+
+5. **Install dependencies**
+
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+6. **Run the game**
+
+   ```bash
+   python VisionBreaker.py
+   ```
+
+---
+
+### Option 2: Plain Python and pip
+
+1. Make sure you have **Python 3.10+** installed and on your PATH.
+2. Download or clone the repository and extract it.
+3. Open a terminal in the project folder:
+
+   ```bash
+   cd path/to/VisionBreaker-Neurogrid-Terminal
+   ```
+
+4. Install the dependencies:
+
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+5. Run the game:
+
+   ```bash
+   python VisionBreaker.py
+   ```
+
