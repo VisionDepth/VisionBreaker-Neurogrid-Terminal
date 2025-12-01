@@ -15,6 +15,8 @@ You boot into a simulated grid, watch cascading code rain, and jack into a hidde
   />
 </p>
 
+[![Downloads](https://img.shields.io/github/downloads/VisionDepth/VisionBreaker-Neurogrid/total?color=brightgreen)](https://github.com/VisionDepth/VisionBreaker-Neurogrid/releases)
+
 
 ## Features
 
