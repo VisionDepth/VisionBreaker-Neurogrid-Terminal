@@ -194,9 +194,10 @@ This sequence is entirely text driven and fits the in universe lore for VisionBr
 
 ## Installation
 
-If you like to try without using command prompts i have packaged the game into a .EXE 
-go to releases and choose the latest release and download the zip file ?
-once downloaded extract somewhere on Harddrive and run the .exe 
+### If you like to try without using command prompts i have packaged the game into a .EXE 
+- go to releases and choose the latest release and download the zip file
+- once downloaded extract somewhere on Harddrive
+- run the .exe 
 
 You can run VisionBreaker: Neurogrid Terminal in a Conda environment (recommended) or with plain Python and `pip`.
 
