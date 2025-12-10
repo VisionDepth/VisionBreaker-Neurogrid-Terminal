@@ -5,6 +5,8 @@ VisionBreaker: Neurogrid Terminal is a cyberpunk terminal toy and logic puzzle g
 You boot into a simulated grid, watch cascading code rain, and jack into a hidden puzzle layer. Solve terminal riddles to neutralize the TRACE system and unlock new visual themes as the Neurogrid bends to your will.
 
 > Part ambient code rain visualizer, part minimal puzzle game.
+> 
+> Note: Contains flashing visuals, screen shake, and glitch effects. See Photosensitivity Warning below.
 
 ---
 <p align="center">
@@ -15,162 +17,127 @@ You boot into a simulated grid, watch cascading code rain, and jack into a hidde
   />
 </p>
 
+<p align="center">
+  <img
+    src="https://github.com/user-attachments/assets/fea784b8-a423-4940-9277-96eb7c2549d1"
+    width="450"
+    alt="Main Window"
+  />
+</p>
+
 [![Downloads](https://img.shields.io/github/downloads/VisionDepth/VisionBreaker-Neurogrid/total?color=brightgreen)](https://github.com/VisionDepth/VisionBreaker-Neurogrid/releases)
 
 
 ## Features
 
-- **Dynamic code rain renderer**
-  - High density character streams that scale with your screen resolution
-  - Glowing trails, random glitches, binary mode, and camera shake events
+### Dynamic Code Rain Engine
+- High-density, resolution-adaptive code streams  
+- Glowing trails, binary mode, occasional glitch flickers, and camera shake effects  
+- Smooth fullscreen performance with optional slow-motion mode
 
-- **Neurogrid boot sequence**
-  - Diegetic boot screen where you type your choice
-  - Type a specific word to break into the simulation or abandon the connection
+### Neurogrid Boot Sequence
+- Atmospheric diegetic startup screen  
+- Type commands to “awaken” the terminal or abort the connection
 
-- **Hack console**
-  - Press `H` to open the `HACK>` prompt
-  - Type anything and press Enter to rain that phrase down the screen
-  - Satisfying confirm sound for successful terminal injections
+### Interactive Hack Console
+- Press `H` to open the **HACK>** prompt  
+- Type any phrase to inject it directly into the falling code  
+- Includes audio feedback for successful terminal submissions
 
-- **Puzzle mode with TRACE system**
-  - Press `P` to enter puzzle mode
-  - Answer eight original terminal puzzles through the `HACK>` console
-  - A TRACE bar climbs as you stall or answer wrong
-  - Wrong answer or full TRACE triggers a critical system failure
-  - Solve puzzles to neutralize TRACE and unlock cosmetic rewards
+### Puzzle Mode & TRACE System
+- Press `P` to enter puzzle mode  
+- Solve eight original Neurogrid-themed puzzles using the **HACK>** console  
+- A rising TRACE bar increases pressure with:
+  - Passive time gain  
+  - Wrong answers  
+  - Optional hint usage  
+- Fully filled TRACE or multiple failures trigger a **critical system error**  
+- Correct answers reset TRACE and advance to the next challenge
 
-- **Theme unlock progression**
-  - Start with 1 theme unlocked
-  - Each solved puzzle unlocks an additional color theme
-  - Work your way to the full set as you crack the Neurogrid
+### Theme Unlock Progression
+- Begin with a single visual theme  
+- Each solved puzzle unlocks an additional color theme  
+- Newly unlocked themes **auto-apply**, creating a dramatic visual shift  
+- Special vertical “THEME UNLOCKED” rain celebrates each milestone
 
-- **Critical error events**
-  - Red tint overlays, glitch bars, camera shake, and a giant SYSTEM FAILURE banner
-  - Audio cue for failure and a hard drop back into free mode
+### Critical Error Events
+- Intense red-tint overlay, glitch bars, camera shake, and a large **SYSTEM FAILURE** banner  
+- Error sound effect and forced return to free mode  
+- Designed to feel like a terminal meltdown without breaking gameplay
 
-- **Plays nice with your hardware**
-  - Starts in fullscreen using your current display resolution
-  - Can be toggled between fullscreen and windowed mode at run time
-  - Fails gracefully if audio assets are missing
-
----
-
-## Color Themes
-
-You start with **Emerald Stream** and unlock more as you solve puzzles.
-
-- `Emerald Stream`  
-  Classic green-on-black cascading code
-
-- `Red Alert`  
-  Aggressive red palette with warning vibes
-
-- `Synthwave`  
-  Purple and magenta for retro neon energy
-
-- `Neon Circuit`  
-  Cyan and teal grid glow
-
-- `Amber Warning`  
-  Warm amber tones with hazard feel
-
-- `Glacial Scan`  
-  Icy blue scanner aesthetic
-
-- `Violet Static`  
-  High contrast purple glitch
-
-- `Ghost Signal`  
-  Soft mint and spectral green
-
-- `Solar Flare`  
-  Hot orange blast with dark red background
+### Smart Hardware Behavior
+- Launches in fullscreen at your display’s native resolution  
+- Toggle between fullscreen and windowed mode at any time  
+- Gracefully handles missing audio files without crashing
 
 ---
 
 ## Controls
 
-**General**
+### General
+- **Esc**  
+  - Close hack console  
+  - Exit puzzle mode  
+  - Quit the program (when not in console/puzzle)
 
-- `Esc`  
-  Quit the game, or exit hack console if it is open
+- **F11**  
+  Toggle fullscreen/windowed mode
 
-- `F11`  
-  Toggle fullscreen and windowed mode
-
-- `Space`  
-  Pause or resume the rain animation  
-  (Critical error overlay and shake still animate while paused)
-
----
-
-**Rain and visual controls**
-
-- `C`  
-  Cycle through unlocked color themes
-
-- `Up / Down Arrow`  
-  Increase or decrease global rain speed
-
-- `B`  
-  Toggle slow motion
-
-- `N`  
-  Toggle binary mode  
-  In binary mode the rain switches to only `0` and `1`
-
-- `S`  
-  Trigger a short manual camera shake event
-
-- `E`  
-  Trigger a critical error event on demand
+- **Space**  
+  Pause or resume the code rain animation  
+  *(Critical error visuals and shake still animate while paused)*
 
 ---
 
-**Hack console**
+### Visual & Rain Controls
+- **C** – Cycle through unlocked color themes  
+- **Up / Down Arrow** – Increase or decrease global rain speed  
+- **B** – Toggle slow-motion mode  
+- **N** – Toggle binary mode (`0` and `1` rain only)  
+- **S** – Trigger a short manual camera shake  
+- **E** – Trigger a critical system error on demand
 
-- `H`  
-  Open the `HACK>` input at the bottom of the screen
+---
 
-- `Enter` (while the console is open)  
-  - In free mode:  
-    - Spawn a vertical word rain of what you typed  
-    - Play a confirm sound if available  
-    - Close the console
-  - In puzzle mode:  
+### Hack Console
+- **H** – Open the **HACK>** input line  
+- **Enter** (while console is open)  
+  - **Free mode:**  
+    - Spawn your typed phrase as falling vertical text  
+    - Play confirm sound  
+    - Close console  
+  - **Puzzle mode:**  
     - Submit your answer for the current puzzle
 
-- `Backspace`  
-  Delete the last character while typing into the console
-
-- `Esc` (while console is open)  
-  Cancel hack input and close the console
+- **Backspace** – Delete last character  
+- **Esc** – Cancel hack entry and close console
 
 ---
 
-**Puzzle mode and TRACE**
+### Puzzle Mode & TRACE
+- **P** – Enter puzzle mode from free mode
 
-- `P`  
-  Enter puzzle mode from free mode
+When puzzle mode is active:
+- A dynamic **TRACE bar** appears (top-right)  
+- The current **puzzle prompt** displays near the bottom  
+- You reply exclusively through the **HACK>** console  
+- Type **HINT** (and press Enter) to reveal a clue  
+  - Hints cost TRACE, making them a strategic choice
 
-In puzzle mode:
+Failure conditions:
+- TRACE bar fills completely  
+- Repeated incorrect answers
 
-- A **TRACE bar** appears on the top right
-- A **puzzle prompt** appears near the bottom of the screen
-- You answer only via the `HACK>` console
+Success conditions:
+- **Correct answers** show “ACCESS GRANTED,” reset TRACE, and move to the next puzzle  
+- Completing all puzzles:
+  - Neutralizes TRACE  
+  - Unlocks all earned color themes  
+  - Returns you to free mode
 
-If the TRACE bar fills before you solve the current puzzle, or you type a wrong answer, a **critical error** is triggered.
 
-Solving puzzles:
+---
 
-- Correct answers:
-  - Show `ACCESS GRANTED` as word rain
-  - Advance you to the next puzzle
-  - Unlock new themes as you go
-- After the last puzzle:
-  - TRACE is neutralized
-  - You drop back into free mode with all unlocked themes
 
 ---
 
@@ -266,3 +233,19 @@ You can run VisionBreaker: Neurogrid Terminal in a Conda environment (recommende
    ```bash
    python VisionBreaker.py
    ```
+---
+
+## Photosensitivity Warning
+
+This project contains:
+
+- Rapidly changing visuals
+- Flashing and strobing effects
+- Screen shake and glitch effects
+- High contrast color themes
+
+These effects may trigger discomfort or seizures in people with photosensitive epilepsy or other light sensitivities.
+
+If you experience dizziness, blurred vision, headache, nausea, or any kind of discomfort while playing, stop using the program immediately and rest. If symptoms persist, seek medical advice.
+
+If you are prone to photosensitive seizures or visual migraines, you should talk to a medical professional before using this program or avoid it entirely.
