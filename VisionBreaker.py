@@ -2,13 +2,27 @@ import pygame
 import random
 import os
 import sys
+import math
 
 # ================== INIT ==================
 pygame.init()
 pygame.mixer.init()
 
-# ---- Audio setup ----
-ASSET_DIR = "assets"
+def resource_path(relative_path: str) -> str:
+    """
+    Get absolute path to resource, works in dev and when bundled with PyInstaller.
+    """
+    if hasattr(sys, "_MEIPASS"):
+        # When running from a PyInstaller bundle
+        base_path = sys._MEIPASS  # type: ignore[attr-defined]
+    else:
+        # When running from source
+        base_path = os.path.dirname(os.path.abspath(__file__))
+    return os.path.join(base_path, relative_path)
+
+
+ASSET_DIR = resource_path("assets")
+
 MUSIC_FILE = os.path.join(ASSET_DIR, "codefall_ambience.ogg")
 SFX_HACK_FILE = os.path.join(ASSET_DIR, "hack_confirm.wav")
 SFX_BINARY_FILE = os.path.join(ASSET_DIR, "binary_toggle.wav")
@@ -27,7 +41,7 @@ def init_audio():
     # Background music
     try:
         pygame.mixer.music.load(MUSIC_FILE)
-        pygame.mixer.music.set_volume(0.4)
+        pygame.mixer.music.set_volume(0.35)
         pygame.mixer.music.play(-1)  # loop forever
         music_loaded = True
     except Exception:
@@ -50,13 +64,13 @@ def init_audio():
     # Critical error SFX
     try:
         sfx_error = pygame.mixer.Sound(SFX_ERROR_FILE)
-        sfx_error.set_volume(0.7)
+        sfx_error.set_volume(0.25)
     except Exception:
         sfx_error = None
 
 
 # ---- Dynamic screen + fullscreen handling ----
-DEFAULT_WINDOW_SIZE = (800, 600)
+DEFAULT_WINDOW_SIZE = (1300, 600)
 info = pygame.display.Info()
 FULLSCREEN_SIZE = (info.current_w, info.current_h)
 
@@ -64,7 +78,24 @@ FULLSCREEN_SIZE = (info.current_w, info.current_h)
 fullscreen = True
 WIDTH, HEIGHT = FULLSCREEN_SIZE
 screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.FULLSCREEN)
-pygame.display.set_caption("VisionBreaker: Neurogrid Terminal |  mode={game_mode}  hack={hack_input_mode}")
+
+hack_input_mode = False
+hack_buffer = ""
+game_mode = "free"  # "free" or "puzzle"
+
+# Typewriter and glow state for puzzle line
+puzzle_full_line = ""      # full text including "PUZZLE x/y: ..."
+puzzle_visible_chars = 0   # how many characters are currently revealed
+puzzle_type_accum = 0.0    # accumulator for typewriter timing
+PUZZLE_CHARS_PER_SEC = 40.0  # speed of typewriter (chars per second)
+
+# Last frame delta time in ms for UI effects
+last_dt_ms = 0
+
+
+pygame.display.set_caption(
+    f"VisionBreaker: Neurogrid Terminal | mode={game_mode}  hack={hack_input_mode}"
+)
 
 # Font Settings
 FONT_SIZE = 28
@@ -220,47 +251,54 @@ shake_intensity = 0
 shake_timer = 0
 
 # Global speed multiplier
-base_speed_factor = 1.0
+base_speed_factor = 0.5
 slow_mo = False  # bullet-time toggle
 binary_mode = False  # all 0/1 mode
 
 # ==== PUZZLE MODE STATE ====
-game_mode = "free"  # "free" or "puzzle"
-
 puzzles = [
     {
         "prompt": "ACCESS PHRASE: SEE BEYOND THE SURFACE (ONE WORD, THINK 'DEEP UNDERSTANDING')",
         "answer": "INSIGHT",
+        "hint": "A single word for deep understanding or intuition.",
     },
     {
         "prompt": "ACCESS CODE SEQUENCE: 2 4 8 16 ? (PATTERN: EACH VALUE DOUBLES)",
         "answer": "32",
+        "hint": "Each number is 2x the previous one.",
     },
     {
         "prompt": "DECRYPT: OPPOSITE OF 'NOISE' (ONE WORD, THINK SIGNAL PROCESSING)",
         "answer": "SIGNAL",
+        "hint": "In signal processing, you want more ____ and less noise.",
     },
     {
         "prompt": "CORE OVERRIDE KEYWORD (THE MAIN TITLE WORD IN ALL CAPS)",
         "answer": "VISIONBREAKER",
+        "hint": "It's the first word in the game's title screen.",
     },
     {
         "prompt": "LOGIC SEQUENCE: 1 3 6 10 15 ? (ADD 2,3,4,5,6...)",
         "answer": "21",
+        "hint": "Differences between numbers go 2,3,4,5,...",
     },
     {
         "prompt": "SYSTEM MODEL: INPUT -> PROCESS -> ______",
         "answer": "OUTPUT",
+        "hint": "Classic three-step flow in computing.",
     },
     {
         "prompt": "CONVERT: BINARY 1010 = ? (DECIMAL)",
         "answer": "10",
+        "hint": "1*8 + 0*4 + 1*2 + 0*1.",
     },
     {
-        "prompt": "IDENT VERIFY: NAME THE TERMINAL (ONE WORD FROM TITLE, COLORFUL ONE)",
-        "answer": "SPECTRAL",
+        "prompt": "IDENT VERIFY: NAME THE TERMINAL (ONE WORD FROM TITLE)",
+        "answer": "NEUROGRID",
+        "hint": "It's the last word in the game window title.",
     },
 ]
+
 
 
 current_puzzle_index = 0
@@ -278,16 +316,13 @@ clock = pygame.time.Clock()
 
 # Smaller control overlay font so it does not crowd the screen
 ui_font = pygame.font.SysFont("consolas", 12)
-# Bigger, more prominent font just for the HACK> console
-hack_font = pygame.font.SysFont("consolas", 28)
+hack_font = pygame.font.SysFont("consolas", 14)
+puzzle_font = pygame.font.SysFont("consolas", 13)
 
 # Special vertical word rain effects
 # list of dicts: {"x", "y", "letters", "speed"}
 word_rains = []
 
-# Hack console input
-hack_input_mode = False
-hack_buffer = ""
 
 # Critical error state
 critical_error_timer = 0
@@ -470,6 +505,18 @@ def apply_critical_error_overlay(surface):
 
 
 # ==== PUZZLE MODE LOGIC ====
+def reset_puzzle_line():
+    """Reset typewriter state for the current puzzle_message."""
+    global puzzle_full_line, puzzle_visible_chars, puzzle_type_accum
+
+    if game_mode == "puzzle" and puzzle_message:
+        puzzle_full_line = f"PUZZLE {current_puzzle_index + 1}/{len(puzzles)}: {puzzle_message}"
+    else:
+        puzzle_full_line = ""
+
+    puzzle_visible_chars = 0
+    puzzle_type_accum = 0.0
+
 def start_puzzle_mode():
     """Enter puzzle mode and prepare the first puzzle."""
     global game_mode, current_puzzle_index, puzzle_message, hack_input_mode, hack_buffer
@@ -480,6 +527,8 @@ def start_puzzle_mode():
     puzzle_message = puzzles[current_puzzle_index]["prompt"]
     hack_input_mode = True
     hack_buffer = ""
+    
+    reset_puzzle_line() 
 
     # start trace bar
     trace_level = 0.0
@@ -489,19 +538,35 @@ def start_puzzle_mode():
 def give_puzzle_hint():
     """Show a hint for the current puzzle and increase trace."""
     global puzzle_message, trace_level
+    global puzzle_full_line, puzzle_visible_chars, puzzle_type_accum
 
     hint = puzzles[current_puzzle_index].get("hint")
     if not hint:
         return
 
-    puzzle_message = f"{puzzles[current_puzzle_index]['prompt']}  // HINT: {hint}"
-    trace_level = min(trace_max, trace_level + 25.0)
+    HINT_COST = 15.0  # cost in TRACE units
+
+    # update message with hint
+    puzzle_message = (
+        f"{puzzles[current_puzzle_index]['prompt']}  // HINT: {hint} "
+        f"// TRACE +{int(HINT_COST)}/{int(trace_max)}"
+    )
+
+    # spend trace
+    trace_level = min(trace_max, trace_level + HINT_COST)
+
+    # 🔥 Instead of reset_puzzle_line(), directly update the typewriter state
+    puzzle_full_line = f"PUZZLE {current_puzzle_index + 1}/{len(puzzles)}: {puzzle_message}"
+
+    # Show the full line instantly (no re-type)
+    puzzle_visible_chars = len(puzzle_full_line)
+    puzzle_type_accum = float(puzzle_visible_chars)
 
 
 def handle_puzzle_answer(answer_str):
     """Check the player's answer for the current puzzle."""
     global current_puzzle_index, game_mode, puzzle_message, hack_input_mode, hack_buffer
-    global trace_level, trace_active, unlocked_themes
+    global trace_level, trace_active, unlocked_themes, theme_index, current_theme
 
     answer = answer_str.strip().upper()
     current = puzzles[current_puzzle_index]
@@ -528,13 +593,21 @@ def handle_puzzle_answer(answer_str):
             for theme_idx in range(unlocked_themes, desired_unlocked):
                 theme_name = COLOR_THEMES[theme_idx]["name"].upper()
                 spawn_word_rain_from_text(f"THEME UNLOCKED: {theme_name}")
+
+            # Update unlocked count
             unlocked_themes = desired_unlocked
+
+            # 🔥 Auto-apply the newest unlocked theme
+            theme_index = unlocked_themes - 1
+            current_theme = COLOR_THEMES[theme_index]
         # ---------- END THEME UNLOCK LOGIC ----------
+
 
         # All puzzles solved?
         if current_puzzle_index >= len(puzzles):
             spawn_word_rain_from_text("TRACE NEUTRALIZED")
             puzzle_message = "TRACE NEUTRALIZED"
+            reset_puzzle_line()
             game_mode = "free"
             hack_input_mode = False
             hack_buffer = ""
@@ -543,16 +616,65 @@ def handle_puzzle_answer(answer_str):
         else:
             # Next puzzle: reset trace for new round
             puzzle_message = puzzles[current_puzzle_index]["prompt"]
+            reset_puzzle_line()
             hack_input_mode = True
             hack_buffer = ""
             trace_level = 0.0
             trace_active = True
 
     else:
-        # Wrong answer -> critical failure
+        # Wrong answer -> increase trace instead of instant failure
         spawn_word_rain_from_text("ACCESS DENIED")
-        trigger_critical_error()
 
+        # Each wrong answer spikes the trace bar
+        penalty = 10.0    # tweak this if needed
+        trace_level = min(trace_max, trace_level + penalty)
+
+        # Always keep the original riddle visible
+        base_prompt = puzzles[current_puzzle_index]["prompt"]
+
+        if trace_level >= trace_max:
+            # You burned through all your "lives"
+            trigger_critical_error()
+        else:
+            # Still alive: stay in puzzle mode, let them try again
+            global puzzle_full_line, puzzle_visible_chars, puzzle_type_accum
+
+            puzzle_message = (
+                f"{base_prompt}  // ACCESS DENIED - TRACE +{int(penalty)} "
+                f"({int(trace_level)}/{int(trace_max)})"
+            )
+
+            # Build the full line and **show it instantly** (no re-type)
+            puzzle_full_line = (
+                f"PUZZLE {current_puzzle_index + 1}/{len(puzzles)}: {puzzle_message}"
+            )
+            puzzle_visible_chars = len(puzzle_full_line)
+            puzzle_type_accum = float(puzzle_visible_chars)
+
+            # Keep console active so they can retype
+            hack_input_mode = True
+            hack_buffer = ""
+
+def exit_puzzle_mode():
+    """Exit puzzle mode cleanly and clear puzzle text."""
+    global game_mode, puzzle_message, hack_input_mode, hack_buffer
+    global trace_level, trace_active
+    global puzzle_full_line, puzzle_visible_chars, puzzle_type_accum
+
+    game_mode = "free"
+    puzzle_message = ""
+    hack_input_mode = False
+    hack_buffer = ""
+
+    # Reset trace bar
+    trace_level = 0.0
+    trace_active = False
+
+    # Clear typewriter line so no text lingers
+    puzzle_full_line = ""
+    puzzle_visible_chars = 0
+    puzzle_type_accum = 0.0
 
 
 def draw_ui_overlay(surface):
@@ -572,7 +694,7 @@ def draw_ui_overlay(surface):
 
     # Window caption reflects mode
     pygame.display.set_caption(
-        f"Neurogrid: Codefall  |  mode={game_mode}  hack={hack_input_mode}"
+        f"VisionBreaker: Neurogrid  |  mode={game_mode}  hack={hack_input_mode}"
     )
 
 
@@ -598,16 +720,49 @@ def draw_ui_overlay(surface):
         surface.blit(text_surf, (8, y))
         y += 14
 
-    # Show puzzle prompt if in puzzle mode
-    if game_mode == "puzzle" and puzzle_message:
-        puzzle_surf = ui_font.render(
-            f"PUZZLE {current_puzzle_index + 1}/{len(puzzles)}: {puzzle_message}",
-            True,
-            current_theme["bright"],
-        )
-        rect = puzzle_surf.get_rect()
-        rect.midbottom = (WIDTH // 2, HEIGHT - 60)
-        surface.blit(puzzle_surf, rect)
+    # Show puzzle prompt if in puzzle mode - typewriter + glow/glitch
+    if game_mode == "puzzle" and puzzle_full_line:
+        global puzzle_type_accum, puzzle_visible_chars
+
+        # Advance typewriter based on elapsed time
+        dt_sec = last_dt_ms / 1000.0
+        puzzle_type_accum += dt_sec * PUZZLE_CHARS_PER_SEC
+
+        target_chars = int(puzzle_type_accum)
+        if target_chars > puzzle_visible_chars:
+            puzzle_visible_chars = min(target_chars, len(puzzle_full_line))
+
+        visible_text = puzzle_full_line[:puzzle_visible_chars]
+
+        if visible_text:
+            # Glow effect using a sine wave between bright and flash
+            t = pygame.time.get_ticks() / 1000.0
+            glow = (math.sin(t * 3.0) + 1.0) * 0.5  # 0..1
+
+            br = current_theme["bright"]
+            fl = current_theme["flash"]
+
+            r = int(br[0] + (fl[0] - br[0]) * glow * 0.5)
+            g = int(br[1] + (fl[1] - br[1]) * glow * 0.5)
+            b = int(br[2] + (fl[2] - br[2]) * glow * 0.5)
+            color = (r, g, b)
+
+            # Render with the bigger puzzle font
+            puzzle_surf = puzzle_font.render(visible_text, True, color)
+            rect = puzzle_surf.get_rect()
+            rect.midbottom = (WIDTH // 2, HEIGHT - 60)
+
+            # Little random glitch duplicate
+            if random.random() < 0.06:
+                gx = random.randint(-2, 2)
+                gy = random.randint(-1, 1)
+                glitch_surf = puzzle_font.render(
+                    visible_text, True, current_theme["flash"]
+                )
+                surface.blit(glitch_surf, (rect.x + gx, rect.y + gy))
+
+            surface.blit(puzzle_surf, rect)
+
 
     # TRACE bar (top right) only in puzzle mode
     if game_mode == "puzzle":
@@ -747,6 +902,8 @@ show_boot_screen()
 while running:
     # One tick per frame
     dt_ms = clock.tick(30)
+    last_dt_ms = dt_ms  # store for UI effects like typewriter
+
 
     # Event handling
     for event in pygame.event.get():
@@ -786,6 +943,8 @@ while running:
                 if hack_input_mode:
                     hack_input_mode = False
                     hack_buffer = ""
+                    if game_mode == "puzzle":
+                        exit_puzzle_mode()
                 else:
                     running = False
 
