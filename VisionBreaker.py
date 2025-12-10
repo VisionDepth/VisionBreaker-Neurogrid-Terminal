@@ -41,7 +41,7 @@ def init_audio():
     # Background music
     try:
         pygame.mixer.music.load(MUSIC_FILE)
-        pygame.mixer.music.set_volume(0.4)
+        pygame.mixer.music.set_volume(0.35)
         pygame.mixer.music.play(-1)  # loop forever
         music_loaded = True
     except Exception:
@@ -64,13 +64,13 @@ def init_audio():
     # Critical error SFX
     try:
         sfx_error = pygame.mixer.Sound(SFX_ERROR_FILE)
-        sfx_error.set_volume(0.7)
+        sfx_error.set_volume(0.25)
     except Exception:
         sfx_error = None
 
 
 # ---- Dynamic screen + fullscreen handling ----
-DEFAULT_WINDOW_SIZE = (800, 600)
+DEFAULT_WINDOW_SIZE = (1300, 600)
 info = pygame.display.Info()
 FULLSCREEN_SIZE = (info.current_w, info.current_h)
 
@@ -316,8 +316,8 @@ clock = pygame.time.Clock()
 
 # Smaller control overlay font so it does not crowd the screen
 ui_font = pygame.font.SysFont("consolas", 12)
-hack_font = pygame.font.SysFont("consolas", 18)
-puzzle_font = pygame.font.SysFont("consolas", 18)
+hack_font = pygame.font.SysFont("consolas", 14)
+puzzle_font = pygame.font.SysFont("consolas", 13)
 
 # Special vertical word rain effects
 # list of dicts: {"x", "y", "letters", "speed"}
@@ -694,7 +694,7 @@ def draw_ui_overlay(surface):
 
     # Window caption reflects mode
     pygame.display.set_caption(
-        f"Neurogrid: Codefall  |  mode={game_mode}  hack={hack_input_mode}"
+        f"VisionBreaker: Neurogrid  |  mode={game_mode}  hack={hack_input_mode}"
     )
 
 
